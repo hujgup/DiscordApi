@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{76861B67-979E-4088-88EA-DCEFAD35A59A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Echo.Utils</RootNamespace>
+    <AssemblyName>Echo.Utils</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.WebSockets.Client.Managed, Version=1.0.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.WebSockets.Client.Managed.1.0.20\lib\net45\System.Net.WebSockets.Client.Managed.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.2.32519, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp-NonPreRelease.1.0.0\lib\net35\websocket-sharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AliasRef.cs" />
+    <Compile Include="Async\AsyncContext.cs" />
+    <Compile Include="BubbleEventArgs.cs" />
+    <Compile Include="CannotFinalizeException.cs" />
+    <Compile Include="EventBubbler.cs" />
+    <Compile Include="ICloseable.cs" />
+    <Compile Include="IConstRef.cs" />
+    <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="IReadOnlyDictionaryExtensions.cs" />
+    <Compile Include="IReadOnlyListExtensions.cs" />
+    <Compile Include="IRef.cs" />
+    <Compile Include="Json\JsonArrayBuilder.cs" />
+    <Compile Include="Json\JsonObjectBuilder.cs" />
+    <Compile Include="Json\BuilderTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BuilderTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Json\RootJsonArrayBuilder.cs" />
+    <Compile Include="Json\JsonArrayReader.cs" />
+    <Compile Include="Json\JTokenExtensions.cs" />
+    <Compile Include="Json\NotNullException.cs" />
+    <Compile Include="Json\RootJsonObjectBuilder.cs" />
+    <Compile Include="Json\JsonObjectReader.cs" />
+    <Compile Include="Json\ReaderTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReaderTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Json\StringEnum.cs" />
+    <Compile Include="Json\UnexpectedNullException.cs" />
+    <Compile Include="BlockingQueue.cs" />
+    <Compile Include="MultiWriter.cs" />
+    <Compile Include="MultiWriterTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MultiWriterTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NetworkBitConverter.cs" />
+    <Compile Include="NetworkBitConverterTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NetworkBitConverterTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Promise.cs" />
+    <Compile Include="RefTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RefTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SharedRef.cs" />
+    <Compile Include="ResizableArray.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sockets\Socket.cs" />
+    <Compile Include="Sockets\SocketData.cs" />
+    <Compile Include="Async\TaskExtensions.cs" />
+    <Compile Include="StrongSemaphore.cs" />
+    <Compile Include="StrongSemaphoreSlim.cs" />
+    <Compile Include="Ternary.cs" />
+    <Compile Include="TernaryExtensions.cs" />
+    <Compile Include="TernaryUtils.cs" />
+    <Compile Include="Validate.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Json\BuilderTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BuilderTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="Json\ReaderTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReaderTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="MultiWriterTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MultiWriterTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="NetworkBitConverterTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NetworkBitConverterTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="RefTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RefTemplate.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

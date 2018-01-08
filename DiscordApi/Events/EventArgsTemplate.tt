@@ -1,0 +1,69 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+(string Name, string BaseType, bool Bubbled, bool Generic, (string PropName, string Type)[] Props)[] types = new (string Name, string BaseType, bool Bubbled, bool Generic, (string PropName, string Type)[] Props)[] {
+	(Name: "Channel", BaseType: "IChannel", Bubbled: true, Generic: true, Props: new (string PropName, string Type)[] {
+		(PropName: "Channel", Type: "IChannel")
+	}),
+	(Name: "Message", BaseType: "Message", Bubbled: true, Generic: true, Props: new (string PropName, string Type)[] {
+		(PropName: "Message", Type: "Message")
+	}),
+	(Name: "Pin", BaseType: null, Bubbled: true, Generic: false, Props: new (string PropName, string Type)[] {
+		(PropName: "Data", Type: "PinnedMessageData")
+	})
+};
+#>
+using Echo.Utils;
+using Echo.Discord.Api.Channels;
+using Echo.Discord.Api.Messages;
+
+namespace Echo.Discord.Api.Events {
+<# foreach ((string Name, string BaseType, bool Bubbled, bool Generic, (string PropName, string Type)[] Props) type in types) { #>
+<#
+//string lower = type.PropName.ToLower();
+string[] lowers = type.Props.Select(x => x.PropName.ToLower()).ToArray();
+#>
+	public partial class <#= type.Name #>EventArgs<# if (type.Bubbled) { #> : BubbleEventArgs<# } #> {
+		internal <#= type.Name #>EventArgs(<# for (int i = 0; i < lowers.Length; i++) { #><#= i == 0 ? "" : ", " #><#= type.Props[i].Type #> <#= lowers[i] #><# } #>) {
+<# for (int i = 0; i < lowers.Length; i++) { #>
+			<#= type.Props[i].PropName #> = <#= lowers[i] #>;
+<# } #>
+		}
+<# foreach ((string PropName, string Type) prop in type.Props) { #>
+		public <#= prop.Type #> <#= prop.PropName #> {
+			get;
+		}
+<# } #>
+<# if (type.Bubbled && type.Generic) { #>
+		public <#= type.Name #>EventArgs<T> Convert<T>() where T : <#= type.BaseType #> {
+			return new <#= type.Name #>EventArgs<T>(this);
+		}
+<# } #>
+	}
+<# if (type.Bubbled && type.Generic) { #>
+	/// <summary>
+	/// Aliases <see cref="<#= type.Name #>EventArgs"/> for types derived from <see cref="<#= type.BaseType #>"/>.
+	/// </summary>
+	/// <typeparam name="T">The more specific type of the <#= type.BaseType #>.</typeparam>
+	public class <#= type.Name #>EventArgs<T> : AliasEventArgs<<#= type.Name #>EventArgs> where T : <#= type.BaseType #> {
+		internal <#= type.Name #>EventArgs(<#= type.Name #>EventArgs args) : base(args) {
+			<#= type.Name #> = (T)args.<#= type.Name #>;
+		}
+		public T <#= type.Name #> {
+			get;
+		}
+<# foreach ((string PropName, string Type) prop in type.Props) { #>
+<# if (prop.PropName != type.Name) { #>
+		public <#= prop.Type #> <#= prop.PropName #> {
+			get => _args.<#= prop.PropName #>;
+		}
+<# } #>
+<# } #>
+	}
+<# } #>
+<# } #>
+}

@@ -1,0 +1,96 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+(string Name, bool Async, (string Type, string Name)[] Args)[] cmps = new (string Name, bool Async, (string Type, string Name)[] Args)[] {
+	(Name: "Close", Async: false, Args: null),
+	(Name: "Flush", Async: true, Args: null),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "bool", Name: "value")
+	}),
+	(Name: "Write", Async: true, Args: new (string Type, string Name)[] {
+		(Type: "char", Name: "value")
+	}),
+	(Name: "Write", Async: true, Args: new (string Type, string Name)[] {
+		(Type: "char[]", Name: "buffer"),
+		(Type: "int", Name: "index"),
+		(Type: "int", Name: "count")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "decimal", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "double", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "float", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "int", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "long", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "[CanBeNull] object", Name: "value")
+	}),
+	(Name: "Write", Async: true, Args: new (string Type, string Name)[] {
+		(Type: "[CanBeNull] string", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "string", Name: "format"),
+		(Type: "[CanBeNull] object", Name: "arg0")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "string", Name: "format"),
+		(Type: "[CanBeNull] object", Name: "arg0"),
+		(Type: "[CanBeNull] object", Name: "arg1")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "string", Name: "format"),
+		(Type: "[CanBeNull] object", Name: "arg0"),
+		(Type: "[CanBeNull] object", Name: "arg1"),
+		(Type: "[CanBeNull] object", Name: "arg2")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "uint", Name: "value")
+	}),
+	(Name: "Write", Async: false, Args: new (string Type, string Name)[] {
+		(Type: "ulong", Name: "value")
+	})
+};
+#>
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+
+namespace Echo.Utils {
+	public partial class MultiWriter {
+<# foreach ((string Name, bool Async, (string Type, string Name)[] Args) cmp in cmps) {
+	string typedArgs = cmp.Args == null ? "" : string.Join(", ", cmp.Args.Select(x => x.Type + " " + x.Name));
+	string args = cmp.Args == null ? "" : string.Join(", ", cmp.Args.Select(x => x.Name));
+	int max = cmp.Name == "Write" ? 1 : 0;
+	for (int i = 0; i <= max; i++) {
+		string pf = i == 1 ? "Line" : "";
+#>
+		public override void <#= cmp.Name #><#= pf #>(<#= typedArgs #>) {
+			All(x => x.<#= cmp.Name #><#= pf #>(<#= args #>));
+		}
+<# if (cmp.Async) { #>
+		public override async Task <#= cmp.Name #><#= pf #>Async(<#= typedArgs #>) {
+			var w = new Task[Writers.Count];
+			int i = 0;
+			All(x => w[i++] = x.<#= cmp.Name #><#= pf #>Async(<#= args #>));
+			await Task.WhenAll(w);
+		}
+<#
+		}
+	}
+}
+#>
+	}
+}

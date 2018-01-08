@@ -1,0 +1,92 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+string baseNs = "Echo.Discord.Api";
+Dictionary<string, (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[]> types = new Dictionary<string, (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[]>();
+types.Add(baseNs + ".Channels", new (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[] {
+	(ClassName: "IChannel", Text: "Channel", Singular: true, Plural: "Channels", Generic: true, Optional: false),
+	(ClassName: "ChannelCategory", Text: "Category", Singular: true, Plural: null, Generic: false, Optional: true),
+	(ClassName: "IChannel", Text: "AfkChannel", Singular: true, Plural: null, Generic: false, Optional: true)
+});
+types.Add(baseNs + ".Messages", new (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[] {
+	(ClassName: "Message", Text: "Message", Singular: true, Plural: null, Generic: true, Optional: false)
+});
+types.Add(baseNs + ".Servers", new (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[] {
+	(ClassName: "Server", Text: "Server", Singular: true, Plural: "Servers", Generic: false, Optional: false)
+});
+types.Add(baseNs, new (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[] {
+	(ClassName: "User", Text: "Owner", Singular: true, Plural: null, Generic: false, Optional: false),
+	(ClassName: "User", Text: "Member", Singular: false, Plural: "Members", Generic: false, Optional: false),
+	(ClassName: "User", Text: "MentionedUser", Singular: false, Plural: "MentionedUsers", Generic: false, Optional: false),
+	(ClassName: "User", Text: "Creator", Singular: true, Plural: null, Generic: false, Optional: true),
+	(ClassName: "User", Text: "RelatedUser", Singular: true, Plural: null, Generic: false, Optional: false),
+	(ClassName: "Role", Text: "Role", Singular: false, Plural: "Roles", Generic: false, Optional: false),
+	(ClassName: "Role", Text: "MentionedRole", Singular: false, Plural: "MentionedRoles", Generic: false, Optional: false),
+	(ClassName: "Role", Text: "UsableRole", Singular: false, Plural: "UsableRoles", Generic: false, Optional: false),
+	(ClassName: "ServerEmoji", Text: "Emoji", Singular: false, Plural: "Emojis", Generic: false, Optional: false),
+	(ClassName: "Presence", Text: "Presence", Singular: false, Plural: "Presences", Generic: false, Optional: false)
+});
+#>
+using System.Collections.Generic;
+<# foreach (KeyValuePair<string, (string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional)[]> kvp in types) { #>
+
+namespace <#= kvp.Key #> {
+<# foreach ((string ClassName, string Text, bool Singular, string Plural, bool Generic, bool Optional) type in kvp.Value) { #>
+<# string cName = type.Generic ? "T" : type.ClassName; #>
+<# if (type.Singular) { #>
+	public interface IHas<#= type.Text #><# if (type.Generic) { #><T> where T : <#= type.ClassName #><# } #> {
+<# if (type.Optional) { #>
+		bool Has<#= type.Text #> {
+			get;
+		}
+<# } #>
+		ulong <#= type.Text #>Id {
+			get;
+		}
+		<#= cName #> <#= type.Text #> {
+			get;
+		}
+	}
+	public interface IHasCached<#= type.Text #><# if (type.Generic) { #><T> where T : <#= type.ClassName #><# } #> {
+<# if (type.Optional) { #>
+		bool Has<#= type.Text #> {
+			get;
+		}
+<# } #>
+		ulong <#= type.Text #>Id {
+			get;
+		}
+		CachedPromise<<#= cName #>> <#= type.Text #> {
+			get;
+		}
+<# if (type.ClassName == "User" || type.ClassName == "ServerEmoji") { #>
+		Lazy<#= type.ClassName #> Lazy<#= type.Text #> {
+			get;
+		}
+<# } #>
+	}
+<# } #>
+<# if (type.Plural != null) { #>
+	public interface IHasMany<#= type.Plural #><# if (type.Generic) { #><T> where T : <#= type.ClassName #><# } #> {
+		IReadOnlyDictionary<ulong, <#= cName #>> <#= type.Plural #> {
+			get;
+		}
+	}
+	public interface IHasManyCached<#= type.Plural #><# if (type.Generic) { #><T> where T : <#= type.ClassName #><# } #> {
+		IReadOnlyDictionary<ulong, CachedPromise<<#= cName #>>> <#= type.Plural #> {
+			get;
+		}
+<# if (type.ClassName == "User" || type.ClassName == "ServerEmoji") { #>
+		IReadOnlyDictionary<ulong, Lazy<#= type.ClassName #>> Lazy<#= type.Plural #> {
+			get;
+		}
+<# } #>
+	}
+<# } #>
+<# } #>
+}
+<# } #>

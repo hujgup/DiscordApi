@@ -1,0 +1,55 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+List<(string Name, string CodePre, string CodePost)> props = new List<(string Name, string CodePre, string CodePost)>() {
+	(Name: "content", CodePre: "Content = r.ReadString(", CodePost: ");"),
+	(Name: "timestamp", CodePre: "CreationTime = DateTime.Parse(r.ReadString(", CodePost: "));"),
+	(Name: "edited_timestamp", CodePre: "string letStr = r.ReadNullableString(", CodePost: ");if (letStr != null) { LastEditTime = (DateTime?)DateTime.Parse(letStr); }"),
+	(Name: "tts", CodePre: "IsTextToSpeech = r.ReadBoolean(", CodePost: ");"),
+	(Name: "mention_everyone", CodePre: "MentionedEveryone = r.ReadBoolean(", CodePost: ");"),
+	(Name: "mentions", CodePre: "MentionedUsers = r.ReadObjectArray<UserJson>(", CodePost: ").Select(x => User.CreateFromJson(x, null)).ToIdDic();"),
+	(Name: "mention_roles", CodePre: "MentionedRoles = r.ReadObjectArray<RoleJson>(", CodePost: ").Select(x => Role.CreateFromJson(((IServerChannel)Channel.GetCachedValue()).ServerId, x, null)).ToIdDic();"),
+	// TODO: Attachments, EmbeddedContent, Reactions, nonce when that stuff is done
+	(Name: "pinned", CodePre: "IsPinned = r.ReadBoolean(", CodePost: ");"),
+	(Name: "type", CodePre: "MsgType = (InternalMessageType)r.ReadInt32(", CodePost: ");")
+};
+Func<(string Name, string CodePre, string CodePost), string> Print = ((string Name, string CodePre, string CodePost) prop) => prop.CodePre + "\"" + prop.Name + "\"" + prop.CodePost;
+#>
+using System;
+using System.Linq;
+using Echo.Utils.Json;
+using Echo.Discord.Api.Json;
+using Echo.Discord.Api.Http;
+using Echo.Discord.Api.Channels;
+
+namespace Echo.Discord.Api.Messages {
+	public abstract partial class Message {
+	// TODO: Make channel concrete instead of a promise, and thus fix the cast error
+		protected Message(JsonObjectReader r) {
+			Id = r.ReadSnowflake("id");
+			ChannelId = r.ReadSnowflake("channel_id");
+			Channel = new CachedPromise<TextChannel>(new AliasCache<IChannel, TextChannel>(ChannelUtils._globalCache), ChannelId, TextChannel.GetAsync);
+<# foreach ((string Name, string CodePre, string CodePost) prop in props) { #>
+			<#= Print(prop) #>
+<# } #>
+			_cache.Add(this);
+		}
+		internal virtual void UpdateInstance(JsonObjectReader r) {
+			ulong cid = r.ReadSnowflake("channel_id");
+			if (cid != ChannelId) {
+				ChannelId = cid;
+				Channel = new CachedPromise<TextChannel>(new AliasCache<IChannel, TextChannel>(ChannelUtils._globalCache), ChannelId, TextChannel.GetAsync);
+			}
+			// author and webhook_id should be dealt with in this method's overloads
+<# foreach ((string Name, string CodePre, string CodePost) prop in props) { #>
+			if (r.Contains("<#= prop.Name #>")) {
+				<#= Print(prop) #>
+			}
+<# } #>
+		}
+	}
+}

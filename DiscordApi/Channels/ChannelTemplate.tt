@@ -1,0 +1,125 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+string[] eqTypes = new string[] {
+	"ChannelCategory",
+	"TextChannel"
+};
+string[] cmpTypes = new string[] {
+	"ChannelCategory",
+	"ServerTextChannel"
+};
+string[] evtStaticTypes = new string[] {
+	"ChannelCategory",
+	"ServerTextChannel",
+	"DirectMessageTextChannel",
+	"TextChannel"
+};
+string[] evtInstanceTypes = new string[] {
+	"ChannelCategory",
+	"TextChannel"
+};
+string[] evts = new string[] {
+	"Create",
+	"Update",
+	"Delete"
+};
+string[] instanceEvts = new string[] {
+	"Update",
+	"Delete"
+};
+(string Name, string Type)[] typedEvts = new (string Name, string Type)[] {
+	(Name: "", Type: null),
+	(Name: "Channel", Type: null),
+	(Name: "ServerChannel", Type: "IServerChannel"),
+	(Name: "NonCatServerChannel", Type: "INonCatServerChannel"),
+	(Name: "DirectMessageChannel", Type: "IDirectMessageChannel")
+};
+#>
+using System;
+using Echo.Discord.Api.Events;
+using JetBrains.Annotations;
+
+namespace Echo.Discord.Api.Channels {
+<# foreach (string type in eqTypes) { #>
+	public partial class <#= type #> {
+		public bool Equals([CanBeNull] IChannel channel) {
+			return ChannelUtils.ChannelEquals(this, channel);
+		}
+		public override bool Equals([CanBeNull] object obj) {
+			return ChannelUtils.ChannelEquals(this, obj);
+		}
+		public override int GetHashCode() {
+			return Id.GetHashCode();
+		}
+		public static bool operator ==([CanBeNull] <#= type #> a, [CanBeNull] IChannel b) {
+			return ChannelUtils.ChannelEquals(a, b);
+		}
+		public static bool operator !=([CanBeNull] <#= type #> a, [CanBeNull] IChannel b) {
+			return !(a == b);
+		}
+	}
+<# } #>
+<# foreach (string type in cmpTypes) { #>
+	public partial class <#= type #> {
+		public int CompareTo([CanBeNull] IServerChannel channel) {
+			return ChannelUtils.Compare(this, channel);
+		}
+		public static bool operator <([CanBeNull] <#= type #> a, [CanBeNull] IServerChannel b) {
+			return ChannelUtils.Compare(a, b) < 0;
+		}
+		public static bool operator <=([CanBeNull] <#= type #> a, [CanBeNull] IServerChannel b) {
+			return ChannelUtils.Compare(a, b) <= 0;
+		}
+		public static bool operator >([CanBeNull] <#= type #> a, [CanBeNull] IServerChannel b) {
+			return ChannelUtils.Compare(a, b) > 0;
+		}
+		public static bool operator >=([CanBeNull] <#= type #> a, [CanBeNull] IServerChannel b) {
+			return ChannelUtils.Compare(a, b) >= 0;
+		}
+	}
+<# } #>
+<# foreach (string type in evtStaticTypes) {
+	string kw = evtInstanceTypes.Contains(type) ? "" : " new";
+#>
+	public partial class <#= type #> {
+		internal static<#= kw #> void OnCreate(object sender, ChannelEventArgs e) {
+			Create?.Invoke(sender, e.Convert<<#= type #>>());
+		}
+		public static<#= kw #> event EventHandler<ChannelEventArgs<<#= type #>>> Create;
+<# foreach (string evt in instanceEvts) { #>
+		internal static<#= kw #> void On<#= evt #>Any(object sender, ChannelEventArgs e) {
+			<#= evt #>Any?.Invoke(sender, e.Convert<<#= type #>>());
+		}
+		public static<#= kw #> event EventHandler<ChannelEventArgs<<#= type #>>> <#= evt #>Any;
+<# } #>
+	}
+<# } #>
+<# foreach (string type in evtInstanceTypes) { #>
+	public partial class <#= type #> : IInternalChannel {
+<# foreach (string evt in instanceEvts) { #>
+		void IInternalChannel.On<#= evt #>(object sender, ChannelEventArgs e) {
+			<#= evt #>?.Invoke(sender, e);
+		}
+		public event EventHandler<ChannelEventArgs> <#= evt #>;
+<# } #>
+	}
+<# } #>
+	public static partial class ChannelUtils {
+<# foreach (string evt2 in evts) { #>
+<# foreach ((string Name, string Type) evt in typedEvts) { #>
+		internal static void On<#= evt.Name #><#= evt2 #>(object sender, ChannelEventArgs e) {
+			<#= evt.Name #><#= evt2 #>?.Invoke(sender, <#= evt.Type != null ? "e.Convert<" + evt.Type + ">()" : "e" #>);
+		}
+		public static event EventHandler<ChannelEventArgs<#= evt.Type != null ? "<" + evt.Type + ">" : "" #>> <#= evt.Name #><#= evt2 #>;
+<# } #>
+<# } #>
+	}
+}
+
+
+

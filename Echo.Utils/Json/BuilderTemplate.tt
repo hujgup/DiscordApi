@@ -1,0 +1,79 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+(string Type, string Name)[] types = new (string Type, string Name)[] {
+	(Type: "bool", Name: "Boolean"),
+	(Type: "byte", Name: "Byte"),
+	(Type: "sbyte", Name: "SByte"),
+	(Type: "short", Name: "Int16"),
+	(Type: "ushort", Name: "UInt16"),
+	(Type: "int", Name: "Int32"),
+	(Type: "uint", Name: "UInt32"),
+	(Type: "long", Name: "Int64"),
+	(Type: "ulong", Name: "UInt64"),
+	(Type: "float", Name: "Single"),
+	(Type: "double", Name: "Double"),
+	(Type: "decimal", Name: "Decimal"),
+	(Type: "char", Name: "Char")
+};
+#>
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+
+namespace Echo.Utils.Json {
+	public partial class RootJsonObjectBuilder {
+<# for (int i = 0; i <= 1; i++) { #>
+<# bool nullable = i == 0; #>
+		public static JArray Make<#= nullable ? "Nullable" : "" #>PrimitiveArray<TArr>(IEnumerable<TArr<#= nullable ? "?" : "" #>> value) where TArr : struct {
+			var res = new JArray();
+			foreach (TArr<#= nullable ? "?" : "" #> item in value) {
+<# if (nullable) { #>
+				res.Add(item == null ? JValue.CreateNull() : new JValue(item));
+<# } else { #>
+				res.Add(new JValue(item));
+<# } #>
+			}
+			return res;
+		}
+<# } #>
+	}
+
+	public abstract partial class JsonObjectBuilder<T> {
+<# foreach ((string Type, string Name) type in types) { #>
+		public JsonObjectBuilder<T> <#= type.Name #>Property(string key, <#= type.Type #> value) {
+			return DynamicProperty(key, value);
+		}
+		public JsonObjectBuilder<T> <#= type.Name #>Property(string key, <#= type.Type #>? value) {
+			return value is null ? NullProperty(key) : <#= type.Name #>Property(key, (<#= type.Type #>)value);
+		}
+		public JsonObjectBuilder<T> <#= type.Name #>ArrayProperty(string key, IEnumerable<<#= type.Type #>> value) {
+			return ArrayProperty(key, RootJsonObjectBuilder.MakePrimitiveArray(value));
+		}
+		public JsonObjectBuilder<T> <#= type.Name #>ArrayProperty(string key, IEnumerable<<#= type.Type #>?> value) {
+			return ArrayProperty(key, RootJsonObjectBuilder.MakeNullablePrimitiveArray(value));
+		}
+<# } #>
+	}
+
+	public abstract partial class JsonArrayBuilder<T> {
+<# foreach ((string Type, string Name) type in types) { #>
+		public JsonArrayBuilder<T> Add<#= type.Name #>(<#= type.Type #> value) {
+			return AddDynamic(value);
+		}
+		public JsonArrayBuilder<T> Add<#= type.Name #>(<#= type.Type #>? value) {
+			return value is null ? AddNull() : Add<#= type.Name #>((<#= type.Type #>)value);
+		}
+		public JsonArrayBuilder<T> Add<#= type.Name #>Array(IEnumerable<<#= type.Type #>> value) {
+			return AddArray(RootJsonObjectBuilder.MakePrimitiveArray(value));
+		}
+		public JsonArrayBuilder<T> Add<#= type.Name #>Array(IEnumerable<<#= type.Type #>?> value) {
+			return AddArray(RootJsonObjectBuilder.MakeNullablePrimitiveArray(value));
+		}
+<# } #>
+	}
+}

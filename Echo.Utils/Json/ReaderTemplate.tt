@@ -1,0 +1,165 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+(string Type, string Name)[] types = new (string Type, string Name)[] {
+	(Type: "bool", Name: "Boolean"),
+	(Type: "byte", Name: "Byte"),
+	(Type: "sbyte", Name: "SByte"),
+	(Type: "short", Name: "Int16"),
+	(Type: "ushort", Name: "UInt16"),
+	(Type: "int", Name: "Int32"),
+	(Type: "uint", Name: "UInt32"),
+	(Type: "long", Name: "Int64"),
+	(Type: "ulong", Name: "UInt64"),
+	(Type: "float", Name: "Single"),
+	(Type: "double", Name: "Double"),
+	(Type: "decimal", Name: "Decimal"),
+	(Type: "char", Name: "Char"),
+	(Type: "string", Name: "String")
+};
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using JetBrains.Annotations;
+
+namespace Echo.Utils.Json {
+	public partial class JsonArrayReader {
+<# foreach ((string Type, string Name) type in types) { #>
+		public <#= type.Type #>[] Next<#= type.Name #>Array() {
+			return NextArray().All<#= type.Name #>();
+		}
+<# if (type.Type != "string") { #>
+		public <#= type.Type #> Next<#= type.Name #>() {
+			return Convert.To<#= type.Name #>(NextValue());
+		}
+		public <#= type.Type #>[] All<#= type.Name #>() {
+			return _arr.Children().Select(x => Convert.To<#= type.Name #>(((JValue)x).Value)).ToArray();
+		}
+		public <#= type.Type #>[] Rest<#= type.Name #>() {
+			var res = new List<<#= type.Type #>>();
+			while (_arrI.MoveNext()) {
+				// ReSharper disable once PossibleNullReferenceException
+				res.Add(Convert.To<#= type.Name #>(((JValue)_arrI.Current).Value));
+			}
+			return res.ToArray();
+		}
+		public <#= type.Type #>? NextNullable<#= type.Name #>() {
+			object value = NextValue();
+			return value != null ? (<#= type.Type #>?)Convert.To<#= type.Name #>(value) : null;
+		}
+		public <#= type.Type #>?[] NextNullable<#= type.Name #>Array() {
+			return NextArray().AllNullable<#= type.Name #>();
+		}
+		public <#= type.Type #>?[] AllNullable<#= type.Name #>() {
+			return _arr.Children().Select(x => ((JValue)x).Value != null ? (<#= type.Type #>?)Convert.To<#= type.Name #>(((JValue)x).Value) : null).ToArray();
+		}
+		public <#= type.Type #>?[] RestNullable<#= type.Name #>() {
+			var res = new List<<#= type.Type #>?>();
+			while (_arrI.MoveNext()) {
+				// ReSharper disable PossibleNullReferenceException
+				res.Add(((JValue)_arrI.Current).Value != null ? (<#= type.Type #>?)Convert.To<#= type.Name #>(((JValue)_arrI.Current).Value) : null);
+				// ReSharper restore PossibleNullReferenceException
+			}
+			return res.ToArray();
+		}
+<# } else { #>
+		public <#= type.Type #> Next<#= type.Name #>() {
+			object value = NextValue();
+			if (value == null) {
+				throw new UnexpectedNullException("String value cannot be null.");
+			}
+			return Convert.To<#= type.Name #>(value);
+		}
+		public <#= type.Type #>[] All<#= type.Name #>() {
+			return _arr.Children().Select(x => {
+				if (((JValue)x).Value == null) {
+					throw new UnexpectedNullException("String value cannot be null.");
+				}
+				return Convert.To<#= type.Name #>(((JValue)x).Value);
+			}).ToArray();
+		}
+		public <#= type.Type #>[] Rest<#= type.Name #>() {
+			var res = new List<<#= type.Type #>>();
+			while (_arrI.MoveNext()) {
+				// ReSharper disable PossibleNullReferenceException
+				if (((JValue)_arrI.Current).Value == null) {
+					throw new UnexpectedNullException("String value cannot be null.");
+				}
+				res.Add(Convert.To<#= type.Name #>(((JValue)_arrI.Current).Value));
+				// ReSharper restore PossibleNullReferenceException
+			}
+			return res.ToArray();
+		}
+		[CanBeNull]
+		public <#= type.Type #> NextNullable<#= type.Name #>() {
+			object value = NextValue();
+			return value != null ? Convert.To<#= type.Name #>(value) : null;
+		}
+		[ItemCanBeNull]
+		public <#= type.Type #>[] NextNullable<#= type.Name #>Array() {
+			return NextArray().AllNullable<#= type.Name #>();
+		}
+		[ItemCanBeNull]
+		public <#= type.Type #>[] AllNullable<#= type.Name #>() {
+			return _arr.Children().Select(x => ((JValue)x).Value != null ? Convert.To<#= type.Name #>(((JValue)x).Value) : null).ToArray();
+		}
+		[ItemCanBeNull]
+		public <#= type.Type #>[] RestNullable<#= type.Name #>() {
+			var res = new List<<#= type.Type #>>();
+			while (_arrI.MoveNext()) {
+				// ReSharper disable PossibleNullReferenceException
+				res.Add(((JValue)_arrI.Current).Value != null ? Convert.To<#= type.Name #>(((JValue)_arrI.Current).Value) : null);
+				// ReSharper restore PossibleNullReferenceException
+			}
+			return res.ToArray();
+		}
+<# } #>
+<# } #>
+	}
+
+	public partial class JsonObjectReader {
+<# foreach ((string Type, string Name) type in types) { #>
+		public <#= type.Type #> Read<#= type.Name #>(string key) {
+<# if (type.Type != "string") { #>
+			return Convert.To<#= type.Name #>(GetVal(key));
+<# } else { #>
+			object value = GetVal(key);
+			if (value == null) {
+				throw new UnexpectedNullException("String value cannot be null.");
+			}
+			return Convert.To<#= type.Name #>(value);
+<# } #>
+		}
+		public <#= type.Type #>[] Read<#= type.Name #>Array(string key) {
+			return ReadArray(key).All<#= type.Name #>();
+		}
+<# if (type.Type != "string") { #>
+		public <#= type.Type #>? ReadNullable<#= type.Name #>(string key) {
+			object value = GetVal(key);
+			return value != null ? (<#= type.Type #>?)Convert.To<#= type.Name #>(value) : null;
+		}
+		public <#= type.Type #>?[] ReadNullable<#= type.Name #>Array(string key) {
+			return ReadArray(key).AllNullable<#= type.Name #>();
+		}
+<# } else { #>
+		[CanBeNull]
+		public <#= type.Type #> ReadNullable<#= type.Name #>(string key) {
+			object value = GetVal(key);
+			return value != null ? Convert.To<#= type.Name #>(value) : null;
+		}
+		[ItemCanBeNull]
+		public <#= type.Type #>[] ReadNullable<#= type.Name #>Array(string key) {
+			return ReadArray(key).AllNullable<#= type.Name #>();
+		}
+<# } #>
+<# } #>
+	}
+}

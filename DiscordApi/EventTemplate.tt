@@ -1,0 +1,69 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+var evts = new Dictionary<string, Dictionary<string, (string Name, string Args)[]>>();
+
+evts.Add("Echo.Discord.Api.Channels", new Dictionary<string, (string Name, string Args)[]> {
+	{
+		"ChannelCategory",
+		new []{
+			(Name: "Create", Args: "ChannelEventArgs<ChannelCategory>")
+		}
+	}
+});
+#>
+using System;
+using Echo.Utils;
+using Echo.Discord.Api.Channels;
+using Echo.Discord.Api.Events;
+using Echo.Discord.Api.Http;
+using Echo.Discord.Api.Messages;
+using Echo.Discord.Api.Servers;
+<# foreach (KeyValuePair<string, Dictionary<string, (string Name, string Args)[]>> kvp in evts) { #>
+
+namespace <#= kvp.Key #> {
+<# foreach (KeyValuePair<string, (string Name, string Args)[]> kvp2 in kvp.Value) { #>
+	public partial class <#= kvp2.Key #> {
+<# foreach ((string Name, string Args) evt in kvp2.Value) { #>
+		public static event EventHandler<<#= evt.Args #>> <#= evt.Name #> {
+			add {
+				GatewayClient c = DiscordEnvironment.CurrentGatewayClient;
+				if (c == null) {
+					throw new NotInEnvironmentException("Automatic static event subscription requires the current thread to be in a DiscordEnvironment. Try using DiscordEnvironment's CreateSubthread or Run methods, or subscribing to the event <#= kvp2.Key #><#= evt.Name #> on the GatewayClient instance Events property.");
+				} else {
+					c.Events.<#= kvp2.Key #><#= evt.Name #> += value;
+				}
+			}
+			remove {
+				GatewayClient c = DiscordEnvironment.CurrentGatewayClient;
+				if (c == null) {
+					throw new NotInEnvironmentException("Automatic static event unsubscription requires the current thread to be in a DiscordEnvironment. Try using DiscordEnvironment's CreateSubthread or Run methods, or unsubscribing from the event <#= kvp2.Key #><#= evt.Name #> on the GatewayClient instance Events property.");
+				} else {
+					c.Events.<#= kvp2.Key #><#= evt.Name #> -= value;
+				}
+			}
+		}
+<# } #>
+	}
+<# } #>
+}
+<# } #>
+
+namespace Echo.Discord.Api.Events {
+	public class EventListener {
+<# foreach (KeyValuePair<string, Dictionary<string, (string Name, string Args)[]>> kvp in evts) { #>
+<# foreach (KeyValuePair<string, (string Name, string Args)[]> kvp2 in kvp.Value) { #>
+<# foreach ((string Name, string Args) evt in kvp2.Value) { #>
+		internal void On<#= kvp2.Key #><#= evt.Name #>(object sender, <#= evt.Args #> e) {
+			<#= kvp2.Key #><#= evt.Name #>?.Invoke(sender, e);
+		}
+		public event EventHandler<<#= evt.Args #>> <#= kvp2.Key #><#= evt.Name #>;
+<# } #>
+<# } #>
+<# } #>
+	}
+}

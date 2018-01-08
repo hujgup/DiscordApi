@@ -1,0 +1,19 @@
+﻿Migrate existing static events over to EventsTemplate
+	Have event dispatchers call _client.Events.OnX methods
+Cached object GetAllCached methods (e.g. public static IReadOnlyList<Server> Server.GetAllCached())
+Fire events in sequence order (SequentialBlockingQueue object, rework BlockingQueue to use protected List<T> _list instead of a queue, and virtual queue methods)
+Set up gateway events (+ bubbling rules, see channel create TODO comments)
+Switch out SemaphoreSlim/Semaphore for StrongSemaphore or regular semaphore
+	Use SemaphoreSlim for object mutexes, Semaphore for expensive waits (e.g. network I/O)
+	Use StrongSemaphore for queues
+Only throw NoSuchX exceptions when Discord doesn't know about something - failed GetCached calls should instead return null
+Check if null values can be replaced with DiscordEnvironment.CurrentClient
+Logging (DiscordDebug.WriteLine)
+XML Documentation (+ check how to comment overload default values)
+
+Where to place factory methods:
+	In static context (User.Get) [PRIMARY FACTORY - ALL OTHER METHODS ALIAS THIS]
+		If is an interface (e.g. IServerChannel) put it in an XUtils class in static context (e.g. ChannelUtils.GetServerChannel)
+		(In ChannelUtils if it's a channel regardless of the above)
+	On client instance (client.GetUser)
+	If another object contains said object, on containing object instance (IHasX)

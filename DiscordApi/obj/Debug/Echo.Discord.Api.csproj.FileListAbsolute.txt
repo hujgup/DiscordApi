@@ -1,0 +1,14 @@
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\Echo.Discord.Api.csprojResolveAssemblyReference.cache
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\Echo.Discord.Api.csproj.CoreCompileInputs.cache
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Echo.Utils.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Newtonsoft.Json.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Echo.Utils.pdb
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Newtonsoft.Json.xml
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\System.ValueTuple.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\System.ValueTuple.xml
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\websocket-sharp.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.exe.config
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.exe
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.pdb
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\DiscordApi.exe
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\DiscordApi.pdb

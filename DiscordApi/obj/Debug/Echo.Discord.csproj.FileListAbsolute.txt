@@ -1,0 +1,11 @@
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\Echo.Discord.csprojResolveAssemblyReference.cache
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\Echo.Discord.csproj.CoreCompileInputs.cache
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\DiscordApi.exe
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\obj\Debug\DiscordApi.pdb
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.exe.config
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.exe
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\DiscordApi.pdb
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Echo.Utils.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Newtonsoft.Json.dll
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Echo.Utils.pdb
+E:\Halo\Coding\Visual Studio\DiscordApi\DiscordApi\bin\Debug\Newtonsoft.Json.xml

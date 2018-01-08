@@ -1,0 +1,59 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ output extension=".cs" #>
+<#
+Dictionary<string, string> delims = new Dictionary<string, string>() {
+	{ "Bold", "**" },
+	{ "Italics", "*" },
+	{ "Underscore", "__" },
+	{ "Strikethrough", "~~" },
+	{ "InlineBlock", "`" }
+};
+string regexText = ":<>#@&!\\";
+foreach (KeyValuePair<string, string> kvp in delims) {
+	char c = kvp.Value[0];
+	if (!regexText.Contains(c)) {
+		regexText += c;
+	}
+}
+regexText = Regex.Escape(regexText);
+#>
+using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using Echo.Discord.Api.Channels;
+
+namespace Echo.Discord.Api.Messages {
+	public partial class MessageBuilder {
+<# foreach (KeyValuePair<string, string> kvp in delims) { #>
+		public const string <#= kvp.Key #>Delim = "<#= kvp.Value #>";
+<# } #>
+<# foreach (KeyValuePair<string, string> kvp in delims) { #>
+<# string delim = kvp.Key + "Delim"; #>
+		public bool In<#= kvp.Key #>Block() {
+			return _open.Contains("<#= kvp.Key #>");
+		}
+		public MessageBuilder Open<#= kvp.Key #>() {
+			if (In<#= kvp.Key #>Block()) {
+				throw new InvalidMessageStructureException("Cannot open a <#= kvp.Key #> block because one is already open - nesting blocks of the same type is not allowed.");
+			}
+			_msg.Append(<#= delim #>);
+			_open.Add("<#= kvp.Key #>");
+			return this;
+		}
+		public MessageBuilder Close<#= kvp.Key #>() {
+			if (!In<#= kvp.Key #>Block()) {
+				throw new InvalidMessageStructureException("Cannot close a <#= kvp.Key #> block because one is not open.");
+			}
+			_msg.Append(<#= delim #>);
+			_open.Remove("<#= kvp.Key #>");
+			return this;
+		}
+<# } #>
+	}
+}

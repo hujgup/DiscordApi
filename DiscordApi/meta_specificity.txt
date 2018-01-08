@@ -1,0 +1,6 @@
+﻿When a Discord event fires, it fires a series of events on other objects. This document describes the order in which those events should fire.
+
+1. Object instance (if it exists)
+2. Containers (e.g. Server instance for server channels)
+3. Static object (e.g. ChannelCategory for a category)
+4. Interface assist object (e.g. ChannelUtils for a channel)

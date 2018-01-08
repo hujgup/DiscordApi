@@ -1,0 +1,69 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+string baseNs = "Echo.Discord.Api";
+Dictionary<string, (string Name, string Parent)[]> types = new Dictionary<string, (string Name, string Parent)[]>();
+types.Add(baseNs, new (string Name, string Parent)[] {
+	(Name: "DiscordException", Parent: "Exception"),
+//	(Name: "XException", Parent: "DiscordException"),
+	(Name: "InvalidMessageStructureException", Parent: "DiscordException"),
+	(Name: "NoNicknameException", Parent: "DiscordException"),
+	(Name: "VoiceUnsupportedException", Parent: "DiscordException"),
+	(Name: "EnvironmentException", Parent: "DiscordException"),
+	(Name: "ItemNotCachedException", Parent: "DiscordException"),
+//	(Name: "XEnvironmentException", Parent: "EnvironmentException"),
+	(Name: "NotInEnvironmentException", Parent: "EnvironmentException"),
+	(Name: "EnvironmentReassignmentException", Parent: "EnvironmentException"),
+	(Name: "NoSuchObjectException", Parent: "DiscordException"),
+//	(Name: "NoSuchXException", Parent: "NoSuchObjectException"),
+	(Name: "NoSuchEmojiException", Parent: "NoSuchObjectException"),
+	(Name: "NoSuchRoleException", Parent: "NoSuchObjectException"),
+	(Name: "NoSuchUserException", Parent: "NoSuchObjectException"),
+	(Name: "NoSuchServerDataException", Parent: "NoSuchObjectException")
+});
+types.Add(baseNs + ".Channels", new (string Name, string Parent)[] {
+	(Name: "UnsupportedChannelTypeException", Parent: "DiscordException"),
+	(Name: "WrongChannelTypeException", Parent: "DiscordException"),
+	(Name: "NoSuchChannelException", Parent: "NoSuchObjectException")
+});
+types.Add(baseNs + ".Http", new (string Name, string Parent)[] {
+	(Name: "CommunicationException", Parent: "DiscordException"),
+	(Name: "IncorrectApiStructureException", Parent: "DiscordException"),
+	(Name: "NotFoundException", Parent: "DiscordException"),
+	(Name: "PermissionDeniedException", Parent: "DiscordException"),
+	(Name: "UnknownImageFormatException", Parent: "DiscordException"),
+	(Name: "GatewayException", Parent: "DiscordException"),
+	(Name: "GatewayConnectException", Parent: "GatewayException"),
+	(Name: "UnknownOpCodeException", Parent: "GatewayException"),
+	(Name: "UnknownEventException", Parent: "GatewayException")
+});
+types.Add(baseNs + ".Messages", new (string Name, string Parent)[] {
+	(Name: "NoSuchMessageException", Parent: "NoSuchObjectException")
+});
+types.Add(baseNs + ".Servers", new (string Name, string Parent)[] {
+	(Name: "NoSuchServerException", Parent: "NoSuchObjectException")
+});
+#>
+using System;
+using System.Runtime.Serialization;
+<# foreach (KeyValuePair<string, (string Name, string Parent)[]> kvp in types) { #>
+
+namespace <#= kvp.Key #> {
+<# foreach ((string Name, string Parent) type in kvp.Value) { #>
+	public class <#= type.Name #> : <#= type.Parent #> {
+		protected <#= type.Name #>(SerializationInfo info, StreamingContext context) : base(info, context) {
+		}
+		public <#= type.Name #>(string message, Exception innerException) : base(message, innerException) {
+		}
+		public <#= type.Name #>(string message) : base(message) {
+		}
+		public <#= type.Name #>() {
+		}
+	}
+<# } #>
+}
+<# } #>

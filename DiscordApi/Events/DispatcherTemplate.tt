@@ -1,0 +1,162 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+(string Name, bool Instance)[] channelEvts = new (string Name, bool Instance)[] {
+	(Name: "Create", Instance: false),
+	(Name: "Delete", Instance: true),
+	(Name: "Update", Instance: true)
+};
+// Main events: Pin, Unpin
+// Contexts: Server, Channel, Message
+(string Name, bool Instance)[] channelPinsEvts = new (string Name, bool Instance)[] {
+	(Name: "MessagePin", Instance: true)
+};
+
+Dictionary<int, string> channelTypeMap = new Dictionary<int, string>();
+channelTypeMap.Add(0, "ChannelType.DirectMessage");
+channelTypeMap.Add(1, "ChannelType.GroupDirectMessage");
+channelTypeMap.Add(2, "ChannelType.ServerText");
+channelTypeMap.Add(3, "ChannelType.ServerCategory");
+Dictionary<int, string> msgTypeMap = new Dictionary<int, string>();
+msgTypeMap.Add(0, "MessageType.User");
+msgTypeMap.Add(1, "MessageType.Bot");
+msgTypeMap.Add(2, "MessageType.Webhook");
+
+Dictionary<int, (string Type, string Getter)> channelInstanceMap = new Dictionary<int, (string Type, string Getter)>();
+channelInstanceMap.Add(0, (Type: "Server", Getter: "((IServerChannel)d.Data).Server.GetCachedValue()"));
+Dictionary<int, (string Type, string Getter)> msgInstanceMap = new Dictionary<int, (string Type, string Getter)>();
+msgInstanceMap.Add(0, (Type: "Message", Getter: "args.Message"));
+msgInstanceMap.Add(1, (Type: "ServerTextChannel", Getter: "(ServerTextChannel)d.Data"));
+msgInstanceMap.Add(2, (Type: "Server", Getter: "((ServerTextChannel)d.Data).Server.GetValueAsync(_client)"));
+
+// Keys associated with corresponding type map
+Dictionary<int, (int? Instance, string Type, string Mid, string Post)[]> channelEvtChain = new Dictionary<int, (int? Instance, string Type, string Mid, string Post)[]>();
+channelEvtChain.Add(0, new (int? Instance, string Type, string Mid, string Post)[] {
+	(Instance: null, Type: "DirectMessageTextChannel", Mid: "", Post: "Any"),
+	(Instance: null, Type: "TextChannel", Mid: "", Post: "Any"),
+	(Instance: null, Type: "ChannelUtils", Mid: "DirectMessageChannel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "Channel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "", Post: "")
+});
+channelEvtChain.Add(1, channelEvtChain[0]);
+channelEvtChain.Add(2, new (int? Instance, string Type, string Mid, string Post)[] {
+	(Instance: 0, Type: null, Mid: "TextChannel", Post: ""),
+	(Instance: 0, Type: null, Mid: "NonCatChannel", Post: ""),
+	(Instance: 0, Type: null, Mid: "Channel", Post: ""),
+	(Instance: null, Type: "ServerTextChannel", Id: "", Post: "Any"),
+	(Instance: null, Type: "TextChannel", Mid: "", Post: "Any"),
+	(Instance: null, Type: "ChannelUtils", Mid: "NonCatServerChannel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "ServerChannel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "Channel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "", Post: ""),
+});
+channelEvtChain.Add(3, new (int? Instance, string Type, string Mid, string Post)[] {
+	(Instance: 0, Type: null, Mid: "Category", Post: ""),
+	(Instance: 0, Type: null, Mid: "Channel", Post: ""),
+	(Instance: null, Type: "ChannelCategory", Mid: "", Post: "Any"),
+	(Instance: null, Type: "ChannelUtils", Mid: "ServerChannel", Post: ""),
+	(Instance: null, Type: "ChannelUtils", Mid: "", Post: "")
+});
+Dictionary<int, (int? Instance, string Type, string Mid, string Post)[]> msgEvtChain = new Dictionary<int, (int? Instance, string Type, string Mid, string Post)[]>();
+msgEvtChain.Add(0, new (int? Instance, string Type, string Mid, string Post)[] {
+	(Instance: 0, Type: null, Mid: "", Post: ""),
+	(Instance: 1, Type: null, Mid: "Message", Post: ""),
+	(Instance: 2, Type: null, Mid: "Message", Post: ""),
+	(Instance: null, Type: "Message", Mid: "", Post: "Any")
+});
+msgEvtChain.Add(1, msgEvtChain[0]);
+msgEvtChain.Add(2, msgEvtChain[0]);
+
+string t2 = "\t\t";
+string t3 = t2 + "\t";
+string t4 = t3 + "\t";
+string t5 = t4 + "\t";
+string t6 = t5 + "\t";
+string t7 = t6 + "\t";
+string n = "\r\n";
+Func<string, string, string, Func<string, string>, Func<string, string>, Func<string, string>, Func<string, string>, Func<int, string>, Func<string, string>, (string Name, bool Instance)[], Dictionary<int, string>, Dictionary<int, (string Type, string Getter)>, Dictionary<int, (int? Instance, string Type, string Mid, string Post)[]>, string, string> generator = (fName, type, argsType, argsCreate, instanceEvt, before, after, evtNameOverride, evtId, evts, typeMap, instanceMap, evtChain, argsName) => {
+	StringBuilder b = new StringBuilder();
+	b.Append(t2 + "private void SetUp" + fName + "Events() {" + n);
+	List<int> seenInstances = new List<int>();
+	string call;
+	int i;
+	int j = 0;
+	foreach ((string Name, bool Instance) evt in evts) {
+		b.Append(t3 + "// " + fName.ToUpper() + " EVENT: " + evt.Name + n);
+		b.Append(t3 + "_listener.Listen(data => {" + n);
+		b.Append(t4 + "var d = (" + type + ")data.Data;" + n);
+		b.Append(t4 + "var args = " + argsCreate(argsType) + ";" + n);
+		b.Append(t4 + before(evt.Name) + n);
+		string evtName = evtNameOverride != null ? evtNameOverride(j) : evt.Name;
+		b.Append(t4 + "var b = new EventBubbler<" + argsType + ">();" + n);
+		if (evt.Instance) {
+			b.Append(t4 + instanceEvt(evtName) + n);
+		}
+		foreach (KeyValuePair<int, (string Type, string Getter)> ins in instanceMap) {
+			b.Append(t4 + ins.Value.Type + " i" + ins.Key + ";" + n);
+		}
+		b.Append(t4 + "// ReSharper disable once SwitchStatementMissingSomeCases (ignoring ServerVoice)" + n);
+		b.Append(t4 + "switch (d.Data.Type) {" + n);
+		foreach (KeyValuePair<int, string> kvp in typeMap) {
+			b.Append(t5 + "case " + kvp.Value + ":" + n);
+			seenInstances.Clear();
+			foreach ((int? Instance, string Type, string Mid, string Post) chain in evtChain[kvp.Key]) {
+				call = ".On" + chain.Mid + evtName + (evt.Instance ? chain.Post : "");
+				if (chain.Instance != null) {
+					i = (int)chain.Instance;
+					if (!seenInstances.Contains(i)) {
+						seenInstances.Add(i);
+						b.Append(t6 + "i" + i + " = " + instanceMap[i].Getter + ";" + n);
+					}
+					b.Append(t6 + "if (i" + i + " != null) {" + n);
+					b.Append(t7 + "b.Append(i" + i + call + ");" + n);
+					b.Append(t6 + "}" + n);
+				} else {
+					b.Append(t6 + "b.Append(" + chain.Type + call + ");" + n);
+				}
+			}
+			b.Append(t6 + "break;" + n);
+		}
+		b.Append(t4 + "}" + n);
+		b.Append(t4 + "b.Invoke(_client, " + argsName + ");" + n);
+		b.Append(t4 + after(evtName) + n);
+		b.Append(t3 + "}, ResponseListener.Unbounded, GatewayOpCode.Dispatch, " + evtId(evt.Name) + ");" + n);
+		j++;
+	}
+	b.Append(t2 + "}" + n);
+	return b.ToString();
+};
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Echo.Utils;
+using Echo.Utils.Async;
+using Echo.Discord.Api.Http;
+using Echo.Discord.Api.Channels;
+using Echo.Discord.Api.Servers;
+using Echo.Discord.Api.Messages;
+
+namespace Echo.Discord.Api.Events {
+	internal partial class Dispatcher {
+		// TODO: Events for other things
+<#
+string gen0 = generator("Channel", "GatewayEvent.Channel", "ChannelEventArgs",
+	delegate(string name) { return "new " + name + "(d.Data)"; },
+	delegate(string name) { return "b.Append(((IInternalChannel)d.Data).On" + name + ");"; },
+	name => "",
+	delegate(string name) { return name == "Delete" ? "d.Data.Uncache();" : ""; },
+	null,
+	delegate(string name) { return "GatewayEvent.Channel." + name + "Id"; },
+	channelEvts, channelTypeMap, channelInstanceMap, channelEvtChain, "args");
+#>
+<#= gen0 #>
+	}
+}

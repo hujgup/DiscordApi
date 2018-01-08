@@ -1,0 +1,8 @@
+﻿GET Channel
+GET User
+GET Emoji
+GET Role
+GET Server
+GET Gateway
+
+Gateway connect

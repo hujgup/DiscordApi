@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F63E3379-968E-48AE-81CE-0B84AABBD2D9}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Echo.Discord.Api</RootNamespace>
+    <AssemblyName>DiscordApi</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
+    <LangVersion>7.1</LangVersion>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Echo.Discord.Api.Json.Test</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.2.32519, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp-NonPreRelease.1.0.0\lib\net35\websocket-sharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cache.cs" />
+    <Compile Include="CachedPromise.cs" />
+    <Compile Include="Channels\ChannelCategory.cs" />
+    <Compile Include="Channels\ChannelTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ChannelTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Channels\ChannelUtils.cs" />
+    <Compile Include="Channels\IInternalChannel.cs" />
+    <Compile Include="ContainsTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ContainsTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DiscordEnvironmentTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DiscordEnvironmentTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DiscordEnvironment.cs" />
+    <Compile Include="Events\AliasEventArgs.cs" />
+    <Compile Include="Events\Dispatcher.cs" />
+    <Compile Include="Events\DispatcherTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DispatcherTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Events\EventArgsTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EventArgsTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Events\PinEventArgs.cs" />
+    <Compile Include="ExceptionsTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExceptionsTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GlobalEmoji.cs" />
+    <Compile Include="Http\GatewayClient.cs" />
+    <Compile Include="Http\GatewayHeartbeater.cs" />
+    <Compile Include="Http\GatewayOptions.cs" />
+    <Compile Include="Http\ReceiveGatewayData.cs" />
+    <Compile Include="Http\GatewayEvent.cs" />
+    <Compile Include="Http\GatewayGame.cs" />
+    <Compile Include="Http\GatewayOpCode.cs" />
+    <Compile Include="Http\GatewaySocket.cs" />
+    <Compile Include="Http\GatewayHelloData.cs" />
+    <Compile Include="Http\GatewayIdentifyData.cs" />
+    <Compile Include="Http\GatewayUpdateStatus.cs" />
+    <Compile Include="Http\ResponseListener.cs" />
+    <Compile Include="Http\SendGatewayData.cs" />
+    <Compile Include="ICached.cs" />
+    <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="IHasIcon.cs" />
+    <Compile Include="IHasIconExtensions.cs" />
+    <Compile Include="INicknamed.cs" />
+    <Compile Include="IReadOnlyDictionaryExtensions.cs" />
+    <Compile Include="Json\MessageJson.cs" />
+    <Compile Include="Json\ReactionJson.cs" />
+    <Compile Include="LazyServerEmoji.cs" />
+    <Compile Include="Messages\IMentionableExtensions.cs" />
+    <Compile Include="Info.cs" />
+    <Compile Include="Json\GatewayJson.cs" />
+    <Compile Include="Json\ServerUserGatewayJson.cs" />
+    <Compile Include="Json\RateLimitJson.cs" />
+    <Compile Include="Json\UmServerJson.cs" />
+    <Compile Include="LazyUser.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\MessageBuilder.cs" />
+    <Compile Include="Messages\MessageTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Messages\MessageType.cs" />
+    <Compile Include="Messages\InternalMessageType.cs" />
+    <Compile Include="Messages\PinnedMessageData.cs" />
+    <Compile Include="Messages\WebhookMessage.cs" />
+    <Compile Include="RoleColor.cs" />
+    <Compile Include="FactoryUtils.cs" />
+    <Compile Include="Channels\DirectMessageTextChannel.cs" />
+    <Compile Include="Channels\INonCatServerChannel.cs" />
+    <Compile Include="Channels\IDirectMessageChannel.cs" />
+    <Compile Include="Channels\IServerChannel.cs" />
+    <Compile Include="Channels\ServerVoiceChannel.cs" />
+    <Compile Include="Channels\TextChannel.cs" />
+    <Compile Include="Channels\IVoiceChannel.cs" />
+    <Compile Include="Channels\ServerTextChannel.cs" />
+    <Compile Include="Channels\ChannelType.cs" />
+    <Compile Include="DiscordDebug.cs" />
+    <Compile Include="Emoji.cs" />
+    <Compile Include="Http\IAlias.cs" />
+    <Compile Include="Json\JsonId.cs" />
+    <Compile Include="Presence.cs" />
+    <Compile Include="Role.cs" />
+    <Compile Include="ServerEmoji.cs" />
+    <Compile Include="Servers\NsfwFilterLevel.cs" />
+    <Compile Include="GameState.cs" />
+    <Compile Include="Http\BotToken.cs" />
+    <Compile Include="Http\OAuthToken.cs" />
+    <Compile Include="Json\EmojiJson.cs" />
+    <Compile Include="Json\GameJson.cs" />
+    <Compile Include="Json\OverwriteJson.cs" />
+    <Compile Include="Json\PresenceUpdateJson.cs" />
+    <Compile Include="Json\RoleJson.cs" />
+    <Compile Include="Json\ServerJson.cs" />
+    <Compile Include="Json\ServerUserJson.cs" />
+    <Compile Include="Json\Test.cs" />
+    <Compile Include="Json\UserJson.cs" />
+    <Compile Include="Channels\IChannel.cs" />
+    <Compile Include="IIdentifiable.cs" />
+    <Compile Include="Messages\IMentionable.cs" />
+    <Compile Include="INamed.cs" />
+    <Compile Include="IServerNicknamed.cs" />
+    <Compile Include="Json\VoiceStateJson.cs" />
+    <Compile Include="Servers\MfaLevel.cs" />
+    <Compile Include="NotificationLevel.cs" />
+    <Compile Include="PermissionUtils.cs" />
+    <Compile Include="PermissionMask.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Messages\MessageBuilderTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessageBuilderTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Json\ChannelJson.cs" />
+    <Compile Include="Http\Client.cs" />
+    <Compile Include="Http\Token.cs" />
+    <Compile Include="Servers\Server.cs" />
+    <Compile Include="Servers\ServerTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ServerTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Servers\VoiceState.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="Messages\StandardMessage.cs" />
+    <Compile Include="UserStatus.cs" />
+    <Compile Include="Servers\VerificationLevel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Channels\ChannelTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChannelTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="ContainsTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ContainsTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="Events\DispatcherTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DispatcherTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="Events\EventArgsTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EventArgsTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="ExceptionsTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ExceptionsTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="DiscordEnvironmentTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DiscordEnvironmentTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="Messages\MessageTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MessageTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="meta_done.txt" />
+    <Content Include="Messages\MessageBuilderTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MessageBuilderTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="meta_specificity.txt" />
+    <Content Include="meta_todo.txt" />
+    <Content Include="Servers\ServerTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ServerTemplate.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Echo.Utils\Echo.Utils.csproj">
+      <Project>{76861b67-979e-4088-88ea-dcefad35a59a}</Project>
+      <Name>Echo.Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

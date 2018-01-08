@@ -1,0 +1,40 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+string[] evts = new string[] {
+	"Create",
+	"Update",
+	"Delete"
+};
+#>
+using System;
+using Echo.Utils;
+using Echo.Discord.Api.Events;
+using Echo.Discord.Api.Channels;
+
+namespace Echo.Discord.Api.Servers {
+	public partial class Server {
+<# foreach (string evt in evts) { #>
+		internal void OnChannel<#= evt #>(object sender, ChannelEventArgs e) {
+			Channel<#= evt #>?.Invoke(sender, e.Convert<IServerChannel>());
+		}
+		internal void OnNonCatChannel<#= evt #>(object sender, ChannelEventArgs e) {
+			NonCatChannel<#= evt #>?.Invoke(sender, e.Convert<INonCatServerChannel>());
+		}
+		internal void OnCategory<#= evt #>(object sender, ChannelEventArgs e) {
+			Category<#= evt #>?.Invoke(sender, e.Convert<ChannelCategory>());
+		}
+		internal void OnTextChannel<#= evt #>(object sender, ChannelEventArgs e) {
+			TextChannel<#= evt #>?.Invoke(sender, e.Convert<ServerTextChannel>());
+		}
+		public event EventHandler<ChannelEventArgs<IServerChannel>> Channel<#= evt #>;
+		public event EventHandler<ChannelEventArgs<INonCatServerChannel>> NonCatChannel<#= evt #>;
+		public event EventHandler<ChannelEventArgs<ChannelCategory>> Category<#= evt #>;
+		public event EventHandler<ChannelEventArgs<ServerTextChannel>> TextChannel<#= evt #>;
+<# } #>
+	}
+}
